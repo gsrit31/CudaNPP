@@ -32,10 +32,10 @@
 #pragma warning(disable : 4819)
 #endif
 
-#include <Exceptions.h>
-#include <ImageIO.h>
-#include <ImagesCPU.h>
-#include <ImagesNPP.h>
+//#include <Exceptions.h>
+//#include <ImageIO.h>
+//#include <ImagesCPU.h>
+//#include <ImagesNPP.h>
 #include <FreeImage.h>
 #include <string.h>
 #include <fstream>
@@ -44,6 +44,8 @@
 #include <cuda_runtime.h>
 #include <npp.h>
 #include <cassert>
+#include <iostream>
+#include <stdexcept>
 
 #include <helper_cuda.h>
 #include <helper_string.h>
@@ -317,14 +319,14 @@ int main(int argc, char *argv[])
         FreeImage_Unload(pDstBmp);
         exit(EXIT_SUCCESS);
     }
-    catch (npp::Exception &rException)
+    /*catch (const exception &rException)
     {
         std::cerr << "Program error! The following exception occurred: \n";
         std::cerr << rException << std::endl;
         std::cerr << "Aborting." << std::endl;
 
         exit(EXIT_FAILURE);
-    }
+    }*/
     catch (...)
     {
         std::cerr << "Program error! An unknown type of exception occurred. \n";

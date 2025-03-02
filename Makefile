@@ -34,7 +34,8 @@
 # Define the compiler and flags
 NVCC = /usr/local/cuda/bin/nvcc
 CXX = g++
-CXXFLAGS = -std=c++17 -I/usr/local/cuda/include -Iinclude -I/home/coder/lib/cub/ -I/home/coder/lib/cuda-samples/Common -I../../Common -I../../Common/UtilNPP
+#CXXFLAGS = -std=c++17 -I/usr/local/cuda/include -Iinclude -I/home/coder/lib/cub/ -I/home/coder/lib/cuda-samples/Common -I../../Common -I../../Common/UtilNPP
+CXXFLAGS = -std=c++17 -I/usr/local/cuda/include -Iinclude -I/home/coder/lib/cub/ -I/home/coder/lib/cuda-samples/Common
 LDFLAGS = -L/usr/local/cuda/lib64 -lcudart -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc
 LDFLAGS += -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage -L/home/coder/lib
 
