@@ -32,10 +32,6 @@
 #pragma warning(disable : 4819)
 #endif
 
-//#include <Exceptions.h>
-//#include <ImageIO.h>
-//#include <ImagesCPU.h>
-//#include <ImagesNPP.h>
 #include <FreeImage.h>
 #include <string.h>
 #include <fstream>
@@ -319,14 +315,6 @@ int main(int argc, char *argv[])
         FreeImage_Unload(pDstBmp);
         exit(EXIT_SUCCESS);
     }
-    /*catch (const exception &rException)
-    {
-        std::cerr << "Program error! The following exception occurred: \n";
-        std::cerr << rException << std::endl;
-        std::cerr << "Aborting." << std::endl;
-
-        exit(EXIT_FAILURE);
-    }*/
     catch (...)
     {
         std::cerr << "Program error! An unknown type of exception occurred. \n";
