@@ -21,7 +21,10 @@ Contains source code for Image Rotation.
 ```README.md```
 This file should hold the description of the project so that anyone cloning or deciding if they want to clone this repository can understand its purpose to help with their decision.
 This project does image rotation using NVIDIA NPP with CUDA and is hosted on GIT. GIT Repository can be cloned using following URL 
+
+```
 git clone https://github.com/gsrit31/CudaNPP
+```
 
 ```INSTALL```
 Contains instructions how to install this project. this is supposed to  ideally work in all operating system.
