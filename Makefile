@@ -34,11 +34,19 @@
 # Define the compiler and flags
 NVCC = /usr/local/cuda/bin/nvcc
 CXX = g++
-#CXXFLAGS = -std=c++17 -I/usr/local/cuda/include -Iinclude -I/home/coder/lib/cub/ -I/home/coder/lib/cuda-samples/Common -I../../Common -I../../Common/UtilNPP
+
 CXXFLAGS = -std=c++17 -I/usr/local/cuda/include -Iinclude -I/home/coder/lib/cub/ -I/home/coder/lib/cuda-samples/Common
 LDFLAGS = -L/usr/local/cuda/lib64 -lcudart -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc
 LDFLAGS += -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage -L/home/coder/lib
 
+
+# Debug build flags
+ifeq ($(dbg),1)
+      NVCCFLAGS += -g -G
+      BUILD_TYPE := debug
+else
+      BUILD_TYPE := release
+endif
 
 # Define directories
 SRC_DIR = src
@@ -46,25 +54,27 @@ BIN_DIR = bin
 DATA_DIR = data
 LIB_DIR = lib
 
-INCLUDES  := 
-#INCLUDES += -I../../Common -I../../Common/UtilNPP
-
 # Define source files and target executable
 SRC = $(SRC_DIR)/imageRotationNPP.cpp
 TARGET = $(BIN_DIR)/imageRotationNPP
 
+
 # Define the default rule
-all: $(TARGET)
+all: build run
+
+build: $(TARGET)
+
 
 # Rule for building the target executable
 $(TARGET): $(SRC)
 	mkdir -p $(BIN_DIR)
-	$(NVCC) $(INCLUDES) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)
+	$(NVCC) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)
 
 # Rule for running the application
+#./$(TARGET) --input $(DATA_DIR)/Lena.png --output $(DATA_DIR)/Lena_rotated.png
 run: $(TARGET)
 	./$(TARGET) --input $(DATA_DIR)/grey-sloth.png --output $(DATA_DIR)/grey-sloth_rotated.png
-	#./$(TARGET) --input $(DATA_DIR)/Lena.png --output $(DATA_DIR)/Lena_rotated.png
+	
 
 # Clean up
 clean:
@@ -77,8 +87,9 @@ install:
 # Help command
 help:
 	@echo "Available make commands:"
-	@echo "  make        - Build the project."
+	@echo "  make build  - Build the project."
 	@echo "  make run    - Run the project."
 	@echo "  make clean  - Clean up the build files."
-	@echo "  make install- Install the project (if applicable)."
+	@echo "  make install - Install the project (if applicable)."
+	@echo "  make all     - Clean, Build and run the project."
 	@echo "  make help   - Display this help message."

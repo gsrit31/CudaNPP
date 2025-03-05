@@ -46,7 +46,6 @@
 #include <helper_cuda.h>
 #include <helper_string.h>
 
-
 bool printfNPPinfo(int argc, char *argv[])
 {
     const NppLibraryVersion *libVer = nppGetLibVersion();
@@ -68,40 +67,44 @@ bool printfNPPinfo(int argc, char *argv[])
     return bVal;
 }
 
-FIBITMAP *LoadImg(const char *szFile)
+FIBITMAP *ImageLoad(const char *imgFileName)
 {
-    FREE_IMAGE_FORMAT nFif;
+    FREE_IMAGE_FORMAT fImgFormat;
 
-    if (szFile == NULL || *szFile == 0)
+    /* check image file name is null or not*/
+    if (imgFileName == NULL || *imgFileName == 0)
     {
         return NULL;
     }
 
-    if ((nFif = FreeImage_GetFileType(szFile, 0)) == FIF_UNKNOWN)
+    /* get image filetype, and check is support or not*/
+    if ((fImgFormat = FreeImage_GetFileType(imgFileName, 0)) == FIF_UNKNOWN)
     {
-        if ((nFif = FreeImage_GetFIFFromFilename(szFile)) == FIF_UNKNOWN)
+        if ((fImgFormat = FreeImage_GetFIFFromFilename(imgFileName)) == FIF_UNKNOWN)
         {
             return NULL;
         }
     }
-
-    if (!FreeImage_FIFSupportsReading(nFif))
+    /* image file supported for reading or not*/
+    if (!FreeImage_FIFSupportsReading(fImgFormat))
     {
         return NULL;
     }
-
-    return FreeImage_Load(nFif, szFile);
+    /* Load image and return*/
+    return FreeImage_Load(fImgFormat, imgFileName);
 }
 
+/* main function*/
 int main(int argc, char *argv[])
 {
     printf("%s Starting...\n\n", argv[0]);
-    double aBox[2][2];
+
     try
     {
         std::string sFilename;
         char *filePath;
 
+        /* minimum cuda version required*/
         findCudaDevice(argc, (const char **)argv);
 
         if (printfNPPinfo(argc, argv) == false)
@@ -109,13 +112,14 @@ int main(int argc, char *argv[])
             exit(EXIT_SUCCESS);
         }
 
+        /* command has input option use it else by default assume Lena.png*/
         if (checkCmdLineFlag(argc, (const char **)argv, "input"))
         {
             getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
         }
         else
         {
-            filePath = sdkFindFilePath("Lena.pgm", argv[0]);
+            filePath = sdkFindFilePath("Lena.png", argv[0]);
         }
 
         if (filePath)
@@ -124,7 +128,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            sFilename = "Lena.pgm";
+            sFilename = "Lena.png";
         }
 
         // if we specify the filename at the command line, then we only test
@@ -152,6 +156,7 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
+        /* output file name, to store rotated image*/
         std::string sResultFilename = sFilename;
 
         std::string::size_type dot = sResultFilename.rfind('.');
@@ -161,8 +166,7 @@ int main(int argc, char *argv[])
             sResultFilename = sResultFilename.substr(0, dot);
         }
 
-        sResultFilename += "_rotate.pgm";
-        
+        sResultFilename += "_rotate.png";
 
         if (checkCmdLineFlag(argc, (const char **)argv, "output"))
         {
@@ -172,60 +176,60 @@ int main(int argc, char *argv[])
             sResultFilename = outputFilePath;
         }
 
-        // declare a host image object for an 8-bit grayscale image
-        cudaError_t cuRet;
-        NppStatus nppRet;
         BOOL fiRet = false;
-        FIBITMAP *pSrcBmp = NULL;
-        FIBITMAP *pDstBmp = NULL;
+        FIBITMAP *pSrcBmp = NULL; // declare a source image object for an 8-bit grayscale image
+        FIBITMAP *pDstBmp = NULL; // declare a destination image object for an 8-bit grayscale image
+
         unsigned char *pSrcData = NULL;
         unsigned char *pDstData = NULL;
-        Npp8u *pSrcDataCUDA = NULL;
-        Npp8u *pDstDataCUDA = NULL;
-        NppiSize oSrcSize = {0};
-        NppiSize oDstSize = {0};
-        NppiRect oSrcROI = {0};
-        NppiRect oDstROI = {0};
-        int nImgBpp = 0;
+        int num_pixel_imgbpp = 0;
         int nSrcPitch = 0;
         int nDstPitch = 0;
         int nSrcPitchCUDA = 0;
         int nDstPitchCUDA = 0;
-        double aBoundingBox[2][2] = {0};
+
+        double bBox[2][2] = {0};
         double nAngle = 0;
+
+        Npp8u *pSrcDataCUDA = NULL;
+        Npp8u *pDstDataCUDA = NULL;
+        cudaError_t cuRet;
+        NppStatus nppRet;
+
+        NppiSize oSrcSize = {0};
+        NppiSize oDstSize = {0};
+        NppiRect oSrcROI = {0};
+        NppiRect oDstROI = {0};
 
         FreeImage_Initialise(0);
 
-        
-        pSrcBmp = LoadImg(sFilename.c_str());
+        /* Load Image using FreeIMage API*/
+        pSrcBmp = ImageLoad(sFilename.c_str());
         assert(pSrcBmp != NULL);
 
-        
-        nImgBpp = (FreeImage_GetBPP(pSrcBmp) >> 3);
-        std::cout << "freeImg nImgBpp :" << nImgBpp << std::endl;
-        
+        /*Returns the size of one pixel in the bitmap in bits.*/
+        num_pixel_imgbpp = (FreeImage_GetBPP(pSrcBmp) >> 3);
+
         pSrcData = FreeImage_GetBits(pSrcBmp);
 
         oSrcSize.width = (int)FreeImage_GetWidth(pSrcBmp);
-        std::cout << "freeImg oSrcSize.width :" << oSrcSize.width << std::endl;
+
         oSrcSize.height = (int)FreeImage_GetHeight(pSrcBmp);
-        std::cout << "freeImg oSrcSize.height :" << oSrcSize.height << std::endl;
+
         nSrcPitch = (int)FreeImage_GetPitch(pSrcBmp);
-        std::cout << "freeImg nSrcPitch :" << nSrcPitch << std::endl;
 
         oSrcROI.x = oSrcROI.y = 0;
         oSrcROI.width = oSrcSize.width;
         oSrcROI.height = oSrcSize.height;
 
+        /* rotate by 90*/
         nAngle = atof("90");
 
-        
         cuRet = cudaSetDevice(0);
         assert(cuRet == cudaSuccess);
 
-        
-        int type = 0;
-        switch (nImgBpp)
+        /* type of the image use NPP malloc API's*/
+        switch (num_pixel_imgbpp)
         {
         case 1:
             pSrcDataCUDA = nppiMalloc_8u_C1(oSrcSize.width, oSrcSize.height, &nSrcPitchCUDA);
@@ -237,35 +241,34 @@ int main(int argc, char *argv[])
             pSrcDataCUDA = nppiMalloc_8u_C4(oSrcSize.width, oSrcSize.height, &nSrcPitchCUDA);
             break;
         default:
+            std::cout << "Error unable to support" << num_pixel_imgbpp << "number of pixel in the bitmap  for file: <" << sFilename.data() << ">"
+                      << "check and try it" << std::endl;
             assert(0);
             break;
         }
+
+        /* assert if it is an empty malloc*/
         assert(pSrcDataCUDA != NULL);
 
-        
-        cudaMemcpy2D(pSrcDataCUDA, nSrcPitchCUDA, pSrcData, nSrcPitch, oSrcSize.width * nImgBpp, oSrcSize.height, cudaMemcpyHostToDevice);
+        cudaMemcpy2D(pSrcDataCUDA, nSrcPitchCUDA, pSrcData, nSrcPitch, oSrcSize.width * num_pixel_imgbpp, oSrcSize.height, cudaMemcpyHostToDevice);
 
-        
-        nppiGetRotateBound(oSrcROI, aBoundingBox, nAngle, 0, 0);
-        oDstSize.width = (int)ceil(fabs(aBoundingBox[1][0] - aBoundingBox[0][0]));
-        oDstSize.height = (int)ceil(fabs(aBoundingBox[1][1] - aBoundingBox[0][1]));
+        nppiGetRotateBound(oSrcROI, bBox, nAngle, 0, 0);
+        oDstSize.width = (int)ceil(fabs(bBox[1][0] - bBox[0][0]));
+        oDstSize.height = (int)ceil(fabs(bBox[1][1] - bBox[0][1]));
 
-        
-        pDstBmp = FreeImage_Allocate(oDstSize.width, oDstSize.height, nImgBpp << 3);
+        /* allocate memory for output image*/
+        pDstBmp = FreeImage_Allocate(oDstSize.width, oDstSize.height, num_pixel_imgbpp << 3);
         assert(pDstBmp != NULL);
 
         pDstData = FreeImage_GetBits(pDstBmp);
 
         nDstPitch = (int)FreeImage_GetPitch(pDstBmp);
-        std::cout << "freeImg nDstPitch :" << nDstPitch << std::endl;
+
         oDstROI.x = oDstROI.y = 0;
         oDstROI.width = oDstSize.width;
-        std::cout << "freeImg  oDstSize.width :" << oDstSize.width << std::endl;
-        oDstROI.height = oDstSize.height;
-        std::cout << "freeImg oDstSize.height :" << oDstSize.height << std::endl;
 
-        
-        switch (nImgBpp)
+        oDstROI.height = oDstSize.height;
+        switch (num_pixel_imgbpp)
         {
         case 1:
             pDstDataCUDA = nppiMalloc_8u_C1(oDstSize.width, oDstSize.height, &nDstPitchCUDA);
@@ -277,40 +280,46 @@ int main(int argc, char *argv[])
             pDstDataCUDA = nppiMalloc_8u_C4(oDstSize.width, oDstSize.height, &nDstPitchCUDA);
             break;
         }
-        assert(pDstDataCUDA != NULL);
-        cudaMemset2D(pDstDataCUDA, nDstPitchCUDA, 0, oDstSize.width * nImgBpp, oDstSize.height);
 
-        
-        switch (nImgBpp)
+        /* assert if it is an empty malloc*/
+        assert(pDstDataCUDA != NULL);
+        cudaMemset2D(pDstDataCUDA, nDstPitchCUDA, 0, oDstSize.width * num_pixel_imgbpp, oDstSize.height);
+
+        /* call npp rotate APIs to rotate image*/
+        switch (num_pixel_imgbpp)
         {
         case 1:
             nppRet = nppiRotate_8u_C1R(pSrcDataCUDA, oSrcSize, nSrcPitchCUDA, oSrcROI,
                                        pDstDataCUDA, nDstPitchCUDA, oDstROI,
-                                       nAngle, -aBoundingBox[0][0], -aBoundingBox[0][1], NPPI_INTER_CUBIC);
+                                       nAngle, -bBox[0][0], -bBox[0][1], NPPI_INTER_CUBIC);
             break;
         case 3:
             nppRet = nppiRotate_8u_C3R(pSrcDataCUDA, oSrcSize, nSrcPitchCUDA, oSrcROI,
                                        pDstDataCUDA, nDstPitchCUDA, oDstROI,
-                                       nAngle, -aBoundingBox[0][0], -aBoundingBox[0][1], NPPI_INTER_CUBIC);
+                                       nAngle, -bBox[0][0], -bBox[0][1], NPPI_INTER_CUBIC);
             break;
         case 4:
             nppRet = nppiRotate_8u_C4R(pSrcDataCUDA, oSrcSize, nSrcPitchCUDA, oSrcROI,
                                        pDstDataCUDA, nDstPitchCUDA, oDstROI,
-                                       nAngle, -aBoundingBox[0][0], -aBoundingBox[0][1], NPPI_INTER_CUBIC);
+                                       nAngle, -bBox[0][0], -bBox[0][1], NPPI_INTER_CUBIC);
             break;
         }
         assert(nppRet == NPP_NO_ERROR);
 
-        cudaMemcpy2D(pDstData, nDstPitch, pDstDataCUDA, nDstPitchCUDA, oDstSize.width * nImgBpp, oDstSize.height, cudaMemcpyDeviceToHost);
+        /* copy destination image*/
+        cudaMemcpy2D(pDstData, nDstPitch, pDstDataCUDA, nDstPitchCUDA, oDstSize.width * num_pixel_imgbpp, oDstSize.height, cudaMemcpyDeviceToHost);
 
+        /* save image*/
         fiRet = FreeImage_Save(FIF_BMP, pDstBmp, sResultFilename.c_str());
         assert(fiRet);
 
+        /* free nppi allocated memory*/
         nppiFree(pSrcDataCUDA);
         nppiFree(pDstDataCUDA);
 
         cudaDeviceReset();
 
+        /*unload images*/
         FreeImage_Unload(pSrcBmp);
         FreeImage_Unload(pDstBmp);
         exit(EXIT_SUCCESS);
@@ -326,4 +335,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
