@@ -93,7 +93,6 @@ This command will execute the compiled binary, rotating the input image (grey-sl
 If you wish to run the binary directly with custom input/output files, you can use:
 
 ```bash
-- Copy code
 ./bin/imageRotationNPP --input data/grey-sloth.png --output data/grey-sloth_rotated.png
 ```
 
