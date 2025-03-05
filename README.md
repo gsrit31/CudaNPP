@@ -143,10 +143,9 @@ NPP Library Version 11.3.3
 nppiRotate opened: <data/grey-sloth.png> successfully!
 Output Image sucessfully saved  : <data/grey-sloth_rotated.png
 coder@47e8ab50863d:~/project/t2/CudaNPP$
-
 ```
 - Sample run with ./run.sh and input arguments.
-
+```
 coder@47e8ab50863d:~/project/t2/CudaNPP$ ./run.sh --input data/Lena.png --output data/Lena_rotated.png
 Number of arguments: 4
 ./bin/imageRotationNPP Starting...
