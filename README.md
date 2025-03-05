@@ -69,14 +69,14 @@ Make sure the dependencies mentioned in [Dependencies]() section above are insta
 
 ## Build and Run
 
-- Compiling the prokect.
+- Compiling the project.
 ```bash
 make build
 ```
 This will build the project and creates executable under bin/ directory.
 
 ### Linux
-The Linux samples are built using makefiles. To use the makefiles, 
+The Linux samples are built using makefiles. 
 
 ### Windows
 The source code are built on linux platform and are built using the Visual Studio IDE. It is supposed to work for windows as well.
@@ -88,13 +88,13 @@ After building the project, you can run the program using the following command:
 make run
 ```
 
-This command will execute the compiled binary, rotating the input image (Lena.png) by 90 degrees, and save the result as Lena_rotated.png in the data/ directory.
+This command will execute the compiled binary, rotating the input image (grey-sloth.png) by 90 degrees, and save the result as grey-sloth_rotated.png in the data/ directory.
 
 If you wish to run the binary directly with custom input/output files, you can use:
 
 ```bash
 - Copy code
-./bin/imageRotationNPP --input data/Lena.png --output data/Lena_rotated.png
+./bin/imageRotationNPP --input data/grey-sloth.png --output data/grey-sloth_rotated.png
 ```
 
 - Cleaning Up
@@ -125,4 +125,39 @@ NPP Library Version 11.3.3
   Device 0: <          Ampere >, Compute SM 8.6 detected
 nppiRotate opened: <data/grey-sloth.png> successfully!
 Output Image sucessfully saved  : <data/grey-sloth_rotated.png
+```
+
+- Sample run with ./run.sh
+```
+coder@47e8ab50863d:~/project/t2/CudaNPP$ ./run.sh
+No arguments provided. using default arguments to run
+./bin/imageRotationNPP --input data/grey-sloth.png --output data/grey-sloth_rotated.png
+./bin/imageRotationNPP Starting...
+
+GPU Device 0: "Ampere" with compute capability 8.6
+
+NPP Library Version 11.3.3
+  CUDA Driver  Version: 12.6
+  CUDA Runtime Version: 11.3
+  Device 0: <          Ampere >, Compute SM 8.6 detected
+nppiRotate opened: <data/grey-sloth.png> successfully!
+Output Image sucessfully saved  : <data/grey-sloth_rotated.png
+coder@47e8ab50863d:~/project/t2/CudaNPP$
+
+```
+- Sample run with ./run.sh and input arguments.
+
+coder@47e8ab50863d:~/project/t2/CudaNPP$ ./run.sh --input data/Lena.png --output data/Lena_rotated.png
+Number of arguments: 4
+./bin/imageRotationNPP Starting...
+
+GPU Device 0: "Ampere" with compute capability 8.6
+
+NPP Library Version 11.3.3
+  CUDA Driver  Version: 12.6
+  CUDA Runtime Version: 11.3
+  Device 0: <          Ampere >, Compute SM 8.6 detected
+nppiRotate opened: <data/Lena.png> successfully!
+Output Image sucessfully saved  : <data/Lena_rotated.png
+coder@47e8ab50863d:~/project/t2/CudaNPP$ 
 ```
