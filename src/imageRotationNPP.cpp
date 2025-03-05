@@ -189,7 +189,9 @@ int main(int argc, char *argv[])
         int nDstPitchCUDA = 0;
 
         double bBox[2][2] = {0};
-        double nAngle = 0;
+        
+        /* rotate by 90*/
+        double nAngle = atof("90");;
 
         Npp8u *pSrcDataCUDA = NULL;
         Npp8u *pDstDataCUDA = NULL;
@@ -222,8 +224,7 @@ int main(int argc, char *argv[])
         oSrcROI.width = oSrcSize.width;
         oSrcROI.height = oSrcSize.height;
 
-        /* rotate by 90*/
-        nAngle = atof("90");
+        
 
         cuRet = cudaSetDevice(0);
         assert(cuRet == cudaSuccess);
@@ -312,6 +313,8 @@ int main(int argc, char *argv[])
         /* save image*/
         fiRet = FreeImage_Save(FIF_BMP, pDstBmp, sResultFilename.c_str());
         assert(fiRet);
+        std::cout << "Output Image sucessfully saved  : <" << sResultFilename.data()
+                  << std::endl;
 
         /* free nppi allocated memory*/
         nppiFree(pSrcDataCUDA);

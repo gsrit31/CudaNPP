@@ -69,12 +69,17 @@ Make sure the dependencies mentioned in [Dependencies]() section above are insta
 
 ## Build and Run
 
+- Compiling the prokect.
+```bash
+make build
+```
+This will build the project and creates executable under bin/ directory.
+
 ### Linux
 The Linux samples are built using makefiles. To use the makefiles, 
 
 ### Windows
 The source code are built on linux platform and are built using the Visual Studio IDE. It is supposed to work for windows as well.
-
 
 ## Running the Program
 After building the project, you can run the program using the following command:
@@ -100,3 +105,24 @@ To clean up the compiled binaries and other generated files, run:
 make clean
 ```
 This will remove all files in the bin/ directory.
+
+- Sample build and execution output
+
+make run will clean, build and run:
+
+```bash
+coder@47e8ab50863d:~/project/t2/CudaNPP$ make all
+mkdir -p bin
+/usr/local/cuda/bin/nvcc -std=c++17 -I/usr/local/cuda/include -Iinclude -I/home/coder/lib/cub/ -I/home/coder/lib/cuda-samples/Common src/imageRotationNPP.cpp -o bin/imageRotationNPP -L/usr/local/cuda/lib64 -lcudart -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage -L/home/coder/lib
+./bin/imageRotationNPP --input data/grey-sloth.png --output data/grey-sloth_rotated.png
+./bin/imageRotationNPP Starting...
+
+GPU Device 0: "Ampere" with compute capability 8.6
+
+NPP Library Version 11.3.3
+  CUDA Driver  Version: 12.6
+  CUDA Runtime Version: 11.3
+  Device 0: <          Ampere >, Compute SM 8.6 detected
+nppiRotate opened: <data/grey-sloth.png> successfully!
+Output Image sucessfully saved  : <data/grey-sloth_rotated.png
+```
