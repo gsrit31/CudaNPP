@@ -162,15 +162,13 @@ nppiRotate opened: <data/Lena.png> successfully!
 Output Image sucessfully saved  : <data/Lena_rotated.png
 coder@47e8ab50863d:~/project/t2/CudaNPP$ 
 ```
-
-sample Input 
-<img src="./data/grey-sloth.png">
-
-sample Output
-<img src="./data/grey-sloth_rotated.png">
-
-
+--Lena Input/output Images
 |![](./data/Lena.png)|![](./data/Lena_rotated.png)|
+|:-:|:-:|
+|Sample Input|Sample Output after rotating 90*|
+
+--Grey-Sloth Input/output Images
+|![](./data/grey-sloth.png)|![](./data/grey-sloth_rotated.png)|
 |:-:|:-:|
 |Sample Input|Sample Output after rotating 90*|
 
