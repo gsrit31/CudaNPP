@@ -106,8 +106,6 @@ To clean up the compiled binaries and other generated files, run:
 ```bash
 make clean
 ```
-This will remove all files in the bin/ directory.
-
 - Sample build and execution output
 
 make run will clean, build and run:
