@@ -179,8 +179,6 @@ coder@47e8ab50863d:~/project/t2/CudaNPP$
 <br/>
 <br/>
 <br/>
-<br/>
-
 --Lena Input/output Images
 |![](./data/Lena.png)|![](./data/Lena_rotated.png)|
 |:-:|:-:|
