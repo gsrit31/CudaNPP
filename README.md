@@ -168,3 +168,10 @@ sample Input
 
 sample Output
 <img src="./data/grey-sloth_rotated.png">
+
+
+|![](./data/Lena.png)|![](./data/Lena_rotated.png)|
+|:-:|:-:|
+|Sample Input|Sample Output after rotating 90*|
+
+
