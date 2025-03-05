@@ -174,4 +174,3 @@ sample Output
 |:-:|:-:|
 |Sample Input|Sample Output after rotating 90*|
 
-
